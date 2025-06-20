@@ -1,21 +1,21 @@
-import React, { useState, useCallback } from 'react';
-import axios from 'axios';
-import debounce from 'lodash.debounce';
-import { 
-  TextField, 
-  CircularProgress, 
-  Card, 
-  CardContent, 
-  Typography, 
+import React, { useState, useCallback } from "react";
+import axios from "axios";
+import debounce from "lodash.debounce";
+import {
+  TextField,
+  CircularProgress,
+  Card,
+  CardContent,
+  Typography,
   Grid,
   Container,
   Link,
-  Snackbar
-} from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
+  Snackbar,
+  Alert,
+} from "@mui/material";
 
 const RepoSearch = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -35,7 +35,7 @@ const RepoSearch = () => {
       );
       setRepos(response.data.items);
     } catch (err) {
-      setError('Failed to fetch repositories. Please try again.');
+      setError("Failed to fetch repositories. Please try again.");
       setRepos([]);
     } finally {
       setLoading(false);
@@ -44,8 +44,10 @@ const RepoSearch = () => {
 
   // Debounce the search function to avoid making too many API calls
   const debouncedSearch = useCallback(
-    debounce((query) => searchRepos(query), 500),
-    []
+    (query) => {
+      debounce((searchQuery) => searchRepos(searchQuery), 500)(query);
+    },
+    [searchRepos]
   );
 
   const handleSearchChange = (event) => {
@@ -55,7 +57,7 @@ const RepoSearch = () => {
   };
 
   return (
-    <Container maxWidth="md" style={{ marginTop: '2rem' }}>
+    <Container maxWidth="md" style={{ marginTop: "2rem" }}>
       <Typography variant="h4" gutterBottom>
         GitHub Repository Search
       </Typography>
@@ -66,11 +68,11 @@ const RepoSearch = () => {
         label="Search repositories"
         value={searchTerm}
         onChange={handleSearchChange}
-        style={{ marginBottom: '2rem' }}
+        style={{ marginBottom: "2rem" }}
       />
 
       {loading && (
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <div style={{ textAlign: "center", padding: "2rem" }}>
           <CircularProgress />
         </div>
       )}
@@ -97,7 +99,11 @@ const RepoSearch = () => {
         ))}
       </Grid>
 
-      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+      >
         <Alert onClose={() => setError(null)} severity="error">
           {error}
         </Alert>
