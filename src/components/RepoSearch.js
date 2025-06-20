@@ -20,7 +20,7 @@ const RepoSearch = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const searchRepos = async (query) => {
+  const searchRepos = useCallback(async (query) => {
     if (!query) {
       setRepos([]);
       return;
@@ -40,14 +40,12 @@ const RepoSearch = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // Dependencies for searchRepos: empty array because it doesn't depend on any state/props that change
 
   // Debounce the search function to avoid making too many API calls
   const debouncedSearch = useCallback(
-    (query) => {
-      debounce((searchQuery) => searchRepos(searchQuery), 500)(query);
-    },
-    [searchRepos]
+    debounce((query) => searchRepos(query), 500),
+    [searchRepos] // Now searchRepos is a stable dependency
   );
 
   const handleSearchChange = (event) => {
