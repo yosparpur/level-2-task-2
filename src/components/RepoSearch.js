@@ -1,15 +1,25 @@
 import React, { useState, useCallback } from "react";
-import { CircularProgress, Card, CardContent, Typography, TextField, Snackbar } from '@mui/material';
-import { Alert } from '@mui/lab';
-import axios from 'axios';
-import debounce from 'lodash.debounce';
+import {
+  CircularProgress,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Snackbar,
+  Container,
+  Grid,
+  Link,
+} from "@mui/material";
+import { Alert } from "@mui/lab";
+import axios from "axios";
+import debounce from "lodash.debounce";
 
 const debouncedSearchFn = debounce((query, searchRepos) => {
   searchRepos(query);
 }, 500);
 
 function RepoSearch() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,25 +28,28 @@ function RepoSearch() {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`https://api.github.com/search/repositories?q=${query}`);
+      const response = await axios.get(
+        `https://api.github.com/search/repositories?q=${query}`
+      );
       setRepos(response.data.items);
     } catch (err) {
-      setError('Gagal mengambil repositori. Silakan coba lagi.');
+      setError("Gagal mengambil repositori. Silakan coba lagi.");
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, []); // searchRepos is now stable
+  }, []);
 
-  const handleSearchChange = useCallback((event) => {
-    const query = event.target.value;
-    setSearchTerm(query);
-    debouncedSearchFn(query, searchRepos); // Pass searchRepos as an argument
-  }, [searchRepos]); // debouncedSearchFn is stable, searchRepos is stable
+  const handleSearchChange = useCallback(
+    (event) => {
+      const query = event.target.value;
+      setSearchTerm(query);
+      debouncedSearchFn(query, searchRepos);
+    },
+    [searchRepos]
+  );
 
-  const handleCloseSnackbar = () => {
-    setError(null);
-  };
+  // handleCloseSnackbar tidak lagi diperlukan karena Snackbar sekarang menggunakan onClose langsung
 
   return (
     <Container maxWidth="md" style={{ marginTop: "2rem" }}>
@@ -92,6 +105,6 @@ function RepoSearch() {
       </Snackbar>
     </Container>
   );
-};
+}
 
 export default RepoSearch;
