@@ -1,57 +1,41 @@
 import React, { useState, useCallback } from "react";
-import axios from "axios";
-import debounce from "lodash.debounce";
-import {
-  TextField,
-  CircularProgress,
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  Container,
-  Link,
-  Snackbar,
-  Alert,
-} from "@mui/material";
+import { CircularProgress, Card, CardContent, Typography, TextField, Snackbar } from '@mui/material';
+import { Alert } from '@mui/lab';
+import axios from 'axios';
+import debounce from 'lodash.debounce';
 
-const RepoSearch = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+const debouncedSearchFn = debounce((query, searchRepos) => {
+  searchRepos(query);
+}, 500);
+
+function RepoSearch() {
+  const [searchTerm, setSearchTerm] = useState('');
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const searchRepos = useCallback(async (query) => {
-    if (!query) {
-      setRepos([]);
-      return;
-    }
-
     setLoading(true);
     setError(null);
-
     try {
-      const response = await axios.get(
-        `https://api.github.com/search/repositories?q=${query}&sort=stars&order=desc`
-      );
+      const response = await axios.get(`https://api.github.com/search/repositories?q=${query}`);
       setRepos(response.data.items);
     } catch (err) {
-      setError("Failed to fetch repositories. Please try again.");
-      setRepos([]);
+      setError('Gagal mengambil repositori. Silakan coba lagi.');
+      console.error(err);
     } finally {
       setLoading(false);
     }
-  }, []); // Dependencies for searchRepos: empty array because it doesn't depend on any state/props that change
+  }, []); // searchRepos is now stable
 
-  // Debounce the search function to avoid making too many API calls
-  const debouncedSearch = useCallback(
-    debounce((query) => searchRepos(query), 500),
-    [searchRepos] // Now searchRepos is a stable dependency
-  );
+  const handleSearchChange = useCallback((event) => {
+    const query = event.target.value;
+    setSearchTerm(query);
+    debouncedSearchFn(query, searchRepos); // Pass searchRepos as an argument
+  }, [searchRepos]); // debouncedSearchFn is stable, searchRepos is stable
 
-  const handleSearchChange = (event) => {
-    const { value } = event.target;
-    setSearchTerm(value);
-    debouncedSearch(value);
+  const handleCloseSnackbar = () => {
+    setError(null);
   };
 
   return (
